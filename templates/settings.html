@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Chess AI</title>
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/icons/chess-icon.png')}}">
+
+
+        <!-- CSS file -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+        <style>
+            body {
+                height: 100%;
+                width: 100%;
+                color: white;
+                font-size: 20px;
+            }
+            .img_back {
+                opacity: 0.60;
+                height: 100%; 
+                width: 100%;
+                position: fixed;
+                z-index: -1;
+            }
+            
+            /* custom radio */
+            .col img{
+                height:100px;
+                width: 100%;
+                cursor: pointer;
+                transition: transform 1s;
+                object-fit: cover;
+            }
+            .col label{
+                overflow: hidden;
+                position: relative;
+            }
+            .imgbgchk:checked + label>.tick_container{
+                opacity: 1;
+            }
+            /* Animation */
+            .imgbgchk:checked + label>img{
+                transform: scale(1.25);
+                opacity: 0.3;
+            }
+            .tick_container {
+                transition: .5s ease;
+                opacity: 0;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                -ms-transform: translate(-50%, -50%);
+                cursor: pointer;
+                text-align: center;
+            }
+            .tick {
+                background-color: #4CAF50;
+                color: white;
+                font-size: 16px;
+                padding: 6px 12px;
+                height: 40px;
+                width: 40px;
+                border-radius: 100%;
+            }
+         
+
+        </style>
+    </head>
+    <body class="row p-0 m-0">
+        <img src="{{url_for('static',filename = 'img/background/back2.jpg')}}" class="img_back" alt="chessboard_0">
+            
+        <div class="col-12 row p-1 m-0 justify-content-center" >
+            <!-- <div class="col-auto ml-auto ">
+                Config : {{config}} Taskspace : {{taskspace}}
+            </div> -->
+            <a href="{{ url_for('home') }}" class="col-auto ml-auto p-0 m-0 mr-2 "><button class="btn btn-link p-0 m-0 ">
+                <img src="{{url_for('static',filename = 'img/icons/home.png')}}" style="height: 40px;" />
+            </button></a>
+
+            <div class="col-12 row p-0 m-0 justify-content-center" >
+                <div class="col-auto" style="font-size: 50px;">Settings</div>
+            </div>
+            <div class="col-12 row p-0 m-0 justify-content-center" >
+                <div class="col-auto" style="font-size: 20px;">Select your side</div>
+            </div>
+            <div class="col-8 row p-0 m-0 justify-content-around " >
+                <div class="container parent p-0 m-0 my-3 " style=" height: 100%;">
+                    <div class="row p-0 m-0 " style="display: flex; align-items: center; height: 100%;">
+                        <div class='col row p-0 m-0 align-items-center justify-content-center '>
+                            <input type="radio" name="imgbackground" id="img1" class="d-none imgbgchk p-0 m-0 " value="black">
+                            <label for="img1" class="p-0 m-0 " style="background: #ffffff35;">
+                                <img class="p-0 m-0 pic" style="height: 200px; width: 200px;" src="{{url_for('static',filename = 'img/icons/chessR.png')}}" alt="Image L">
+                                <div class="tick_container p-0 m-0">
+                                    <div class="tick p-0 m-0"><i class="fa fa-check p-0 m-0"></i></div>
+                                </div>
+                                <div class="text-center py-2 font-weight-bold" style="font-size: 30px;">Black</div>
+                            </label>
+                        </div>
+                        <div class='col row p-0 m-0 align-items-center justify-content-center '>
+                            <input type="radio" name="imgbackground" id="img2" class="d-none imgbgchk p-0 m-0 " value="random">
+                                <label for="img2" class="p-0 m-0 " style="background: #ffffff35;">
+                                <img class="p-0 m-0 pic" style="height: 200px; width: 200px;" src="{{url_for('static',filename = 'img/icons/chessM.png')}}" alt="Image M">
+                                <div class="tick_container p-0 m-0">
+                                    <div class="tick p-0 m-0"><i class="fa fa-check p-0 m-0"></i></div>
+                                </div>
+                                <div class="text-center py-2 font-weight-bold" style="font-size: 30px;">Random</div>
+                            </label>
+                        </div>
+                        <div class='col row p-0 m-0 align-items-center justify-content-center '>
+                            <input type="radio" name="imgbackground" id="img3" class="d-none imgbgchk p-0 m-0 " value="white">
+                            <label for="img3" class="p-0 m-0 " style="background: #ffffff35;">
+                                <img class="p-0 m-0 pic" style="height: 200px; width: 200px;" src="{{url_for('static',filename = 'img/icons/chessL.png')}}" alt="Image R">
+                                <div class="tick_container p-0 m-0">
+                                    <div class="tick p-0 m-0"><i class="fa fa-check p-0 m-0"></i></div>
+                                </div>
+                                <div class="text-center py-2 font-weight-bold" style="font-size: 30px;">White</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-8 row p-0 m-0 mt-3 justify-content-center" >
+                <input type="text" class="col-9 form-control col text-center" id="board_setup" placeholder="Board Setup" value="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR" >
+            </div>
+            <div class="col-12 row p-0 m-0 mt-3 justify-content-center" >
+                <button id="start_game" type="button" class="col-auto btn btn-warning btn-lg px-5 " disabled >Start</button>
+
+                <form action="{{ url_for('start_game') }}" method="get" hidden>
+                    <input id="player_turn" name="turn" type="hidden" value="">
+                    <input id="player_board" name="board" type="hidden" value="">
+                    <input type="submit" id="start_game_link" hidden>
+                </form>
+            </div>
+
+        </div>
+        
+        
+        <!-- ====JavaScript==== -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script>
+            $(()=>{
+                $('.imgbgchk').click(function() {
+                    let play = $(this).val()
+                    $("#start_game").prop('disabled', false)
+                })
+
+                $("#start_game").click( function() {
+
+                    let play = $('.imgbgchk:checked').val()
+                    $("#player_turn").val(play)
+                    
+                    let board = $('#board_setup').val()
+                    $("#player_board").val(board)
+
+                    $("#start_game_link")[0].click()
+                    
+                })
+            })
+        </script>
+    </body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Chess AI</title>
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/icons/chess-icon.png')}}">
+
+
+        <!-- CSS file -->
+        <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/chessboard-0.3.0.min.css')}}" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.css')}}" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css')}}" />
+
+        <style>
+            body {
+                height: 100%;
+                width: 100%;
+                color: white;
+                font-size: 20px;
+            }
+            .img_back {
+                opacity: 0.60;
+                height: 100%; 
+                width: 100%;
+                position: fixed;
+                z-index: -1;
+            }
+            
+            /* custom radio */
+            .col img{
+                height:100px;
+                width: 100%;
+                cursor: pointer;
+                transition: transform 1s;
+                object-fit: cover;
+            }
+            .col label{
+                overflow: hidden;
+                position: relative;
+            }
+            .imgbgchk:checked + label>.tick_container{
+                opacity: 1;
+            }
+            /* Animation */
+            .imgbgchk:checked + label>img{
+                transform: scale(1.25);
+                opacity: 0.3;
+            }
+            .tick_container {
+                transition: .5s ease;
+                opacity: 0;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                -ms-transform: translate(-50%, -50%);
+                cursor: pointer;
+                text-align: center;
+            }
+            .tick {
+                background-color: #4CAF50;
+                color: white;
+                font-size: 16px;
+                padding: 6px 12px;
+                height: 40px;
+                width: 40px;
+                border-radius: 100%;
+            }
+
+        </style>
+    </head>
+    <body class="row p-0 m-0">
+        <img src="{{url_for('static',filename = 'img/background/back2.jpg')}}" class="img_back" alt="chessboard_0">
+            
+        <div class="col-12 row p-1 m-0 justify-content-center" >
+            <!-- <div class="col-auto ml-auto ">
+                Config : {{config}} Taskspace : {{taskspace}}
+            </div> -->
+            <a href="{{ url_for('home') }}" class="col-auto ml-auto p-0 m-0 mr-2 "><button class="btn btn-link p-0 m-0 ">
+                <img src="{{url_for('static',filename = 'img/icons/home.png')}}" style="height: 40px;" />
+            </button></a>
+
+            <div class="w-100"></div>
+
+            <div class="col-auto row p-0 m-0" style="width: 70vh;" >
+                <div class="col-12 row p-0 m-0 px-2 bg-dark " >
+                    <span class="col-auto mr-auto" >Chess AI</span>
+                    <span class="col-auto mr-auto game-over" ></span>
+                    <span class="col-auto ml-auto" id="chess_time" >00:00</span>
+                </div>
+                <div class="col-12 p-0 m-0" id="board" ></div>
+                <div class="col-12 row p-0 m-0 px-2 bg-dark" >
+                    <span class="col-auto mr-auto" >Human</span>
+                    <span class="col-auto mr-auto game-over" ></span>
+                    <span class="col-auto ml-auto" id="human_time" >00:00</span>
+                </div>
+                
+                <div class="w-100"></div>
+                
+                <div class="col-12 row p-0 m-0 mt-3 justify-content-center ">
+                    <a href="{{ url_for('settings') }}"><button type="button" class="col-auto btn btn-warning px-5 " >New game</button></a>
+                </div>
+                <form action="{{ url_for('start_game') }}" method="get" hidden>
+                    <input id="player_turn" name="turn" type="hidden" value="">
+                    <input id="player_board" name="board" type="hidden" value="">
+                    <input id="force_board" name="force" type="hidden" value="false">
+                    <input type="submit" id="start_game_link" hidden>
+                </form>
+            </div>
+
+        </div>
+        
+        
+        <!-- ====JavaScript==== -->
+        <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> -->
+        <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> -->
+        <!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script> -->
+        <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script> -->
+        
+        <script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/chessboard-0.3.0.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/gameSimulation.js')}}"></script>
+
+        <script>
+            var cfg = {
+                position: '{{ fen }}',
+                showNotation: true,
+                draggable: true,
+                onDragStart: onDragStart,
+                onDrop: onDrop,
+                // onMouseoutSquare: onMouseoutSquare,
+                // onMouseoverSquare: onMouseoverSquare
+            };
+            var board = ChessBoard('board', cfg);
+    
+            var move_ai = '{{move_ai}}'
+            move_ai = move_ai=='True' ? true : false
+            // console.log(move_ai);
+            if(move_ai) {
+                board.orientation('black')
+
+                // human_time = false
+                // human_timeleft = 0
+                // ai_time = true
+                // ai_timeleft = 120
+
+                forceMoveAI()
+            }
+            else {
+                board.orientation('white')
+
+                // human_time = true
+                // human_timeleft = 120
+                // ai_time = false
+                // ai_timeleft = 0
+
+            }
+
+
+            function timeText( time ) {
+                time = parseInt(time)
+
+                let min = parseInt( time/60 )
+                min = min <10 ? '0'+String(min) : String(min)
+                let sec = parseInt( time%60 )
+                sec = sec <10 ? '0'+String(sec) : String(sec)
+
+                return min+':'+sec
+
+            }
+
+            setInterval(() => {
+                // console.log( human_timeleft, ai_timeleft);
+                if( !human_time ) {
+                    human_timeleft = human_timeleft
+                }
+                else if( human_timeleft>0 ) {
+                    human_timeleft-= 1
+
+                    if(human_timeleft==0) {
+                        forceMoveAI(false)
+                    }
+                }
+                else {
+                    human_timeleft=0
+                }
+                $("#human_time").text( timeText(human_timeleft) )
+                
+                if( !ai_time ) {
+                    ai_timeleft = ai_timeleft
+                }
+                else if( ai_timeleft>0 ) {
+                    ai_timeleft-= 1
+                }
+                else {
+                    ai_timeleft=0
+                }
+                $("#chess_time").text( timeText(ai_timeleft) )
+
+            }, 1000);
+
+        </script>
+    </body>
+</html>
